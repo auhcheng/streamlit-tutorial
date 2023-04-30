@@ -185,6 +185,8 @@ st.pyplot(fig)
 ######################################### BEGIN PART 5 #########################################
 # form
 
+"## Predict solubility on your own SMILES string"
+
 with st.form('input_form'):
     st.write('Input a SMILES string to predict log-solubility')
     """Examples:
