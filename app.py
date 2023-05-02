@@ -14,7 +14,7 @@ from io import BytesIO
 import base64
 # st.set_page_config(layout="wide")
 
-######################################### BEGIN PART 1 #########################################
+####### BEGIN PART 1 #######
 # text
 st.title('Streamlit Tutorial')
 
@@ -23,11 +23,31 @@ st.write("We'll be doing some data science and machine learning with the Delaney
 "You can write text like magic!"
 "Markdown is *also* __supported__."
 
-# try out some of the text elements from here: https://docs.streamlit.io/library/api-reference#text-elements
+# TODO: try out some of the text elements from here: https://docs.streamlit.io/library/api-reference#text-elements
 
-######################################### END PART 1 ###########################################
+####### END PART 1 #########
 
-######################################### BEGIN PART 2 #########################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### BEGIN PART 2 #######
 # data, sliders, and images
 
 @st.cache_data # what does this do? we'll worry about it later
@@ -50,13 +70,39 @@ num_to_display = st.number_input(
     value=1,
 )
 
-st.image(Draw.MolsToGridImage(mols[:num_to_display*row_size], molsPerRow=row_size))
+img = Draw.MolsToGridImage(mols[:num_to_display*row_size], molsPerRow=row_size)
+st.image(img)
 
 # notice how whenever any widget is changed, the entire script is re-run
 
-######################################### END PART 2 ###########################################
+# TODO: try out some of the other widgets from here: https://docs.streamlit.io/library/api-reference#display-interactive-widgets
 
-######################################### BEGIN PART 3 #########################################
+# TODO: add a button that shuffles the images around
+# https://docs.streamlit.io/library/api-reference/widgets/st.button
+
+####### END PART 2 #########
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### BEGIN PART 3 #######
 # plotting, columns
 
 
@@ -84,7 +130,8 @@ one, two = st.columns(2)
 
 with one:
     # stuff in this block will go into the first column
-    st.image(Draw.MolToImage(mol))
+    img = Draw.MolToImage(mol)
+    st.image(img)
 
 with two:
     # stuff in this block will go into the second column
@@ -98,20 +145,41 @@ with two:
     viewer.render()
 
     t = viewer.js()
-    f = open('viewer.js', 'w')
-    f.write(t.startjs)
-    f.write(t.endjs)
-    f.close()
+    js = t.startjs + t.endjs
 
-    st.components.v1.html(open('viewer.js').read(), width=400, height=400)
+    st.components.v1.html(js, width=400, height=400)
 
 st.table(df.iloc[idx_to_display].astype(str))
 
+# TODO: add a button that will download the image of the molecule
+# https://docs.streamlit.io/library/api-reference/widgets/st.download_button
 
-######################################### END PART 3 ###########################################
+# TODO: add a multiselect box that lets you pick which features to display
+# https://docs.streamlit.io/library/api-reference/widgets/st.multiselect
+
+####### END PART 3 #########
 
 
-######################################### BEGIN PART 4 #########################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### BEGIN PART 4 #######
 # machine learning, more plotting
 
 "## Predicting solubility with Morgan fingerprints and BayesianRidge"
@@ -145,6 +213,17 @@ df.loc[train_idxs, 'split'] = 'train'
 df.loc[train_idxs, 'predicted log solubility in mols per litre'] = y_train_pred
 df.loc[test_idxs, 'predicted log solubility in mols per litre'] = y_test_pred
 
+
+fig, ax = plt.subplots()
+plt.scatter(y_train, y_train_pred, label="Train")
+plt.scatter(y_test, y_test_pred, label="Test")
+plt.legend()
+plt.title("log-solubility in mols per litre")
+plt.xlabel("Experimental")
+plt.ylabel("Predicted")
+st.pyplot(fig)
+
+
 ######### this part is for generating images to put in the altair chart #########
 def image_formatter2(im):
     with BytesIO() as buffer:
@@ -169,20 +248,33 @@ c = alt.Chart(df).mark_circle(size=40).encode(
 
 st.altair_chart(c, use_container_width=True)
 
-fig, ax = plt.subplots()
-plt.scatter(y_train, y_train_pred, label="Train")
-plt.scatter(y_test, y_test_pred, label="Test")
-plt.legend()
-plt.title("log-solubility in mols per litre")
-plt.xlabel("Experimental")
-plt.ylabel("Predicted")
-st.pyplot(fig)
-
 # plotly, bokeh, pydeck, graphviz, vega-lite are all available: https://docs.streamlit.io/library/api-reference/charts
 
-######################################### END PART 4 ###########################################
+# TODO: try commenting out the @st cache decorators and see how long it takes to run
 
-######################################### BEGIN PART 5 #########################################
+####### END PART 4 #########
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### BEGIN PART 5 #######
 # form
 
 "## Predict solubility on your own SMILES string"
@@ -209,7 +301,8 @@ with st.form('input_form'):
 
             with one:
                 # stuff in this block will go into the first column
-                st.image(Draw.MolToImage(mol))
+                img = Draw.MolToImage(mol)
+                st.image(img)
 
             with two:
                 # stuff in this block will go into the second column
@@ -223,18 +316,21 @@ with st.form('input_form'):
                 viewer.render()
 
                 t = viewer.js()
-                f = open('viewer.js', 'w')
-                f.write(t.startjs)
-                f.write(t.endjs)
-                f.close()
+                js = t.startjs + t.endjs
 
-                st.components.v1.html(open('viewer.js').read(), width=400, height=400)
+                st.components.v1.html(js, width=400, height=400)
+            
             fp = get_morgan_fp(mol)
             y_pred = br.predict(fp.reshape(1, -1)).item()
             st.write(f"Predicted log-solubility: {y_pred}")
 
+            st.write("Molecules with closest measured log-solubility")
             distances = np.abs(y_pred - y)
             closest_idx = np.argsort(distances)[:5]
             closest_mols = [mols[idx] for idx in closest_idx]
-            st.write("Molecules with closest measured log-solubility")
             st.image(Draw.MolsToGridImage(closest_mols, molsPerRow=5))
+
+# TODO: notice how the visualization code is the exact same as before in part 3
+# refactor it into a function and call it twice
+
+####### END PART 5 #########
